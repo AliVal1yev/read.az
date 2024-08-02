@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{%load static%}
+{% block content%}
+<main>
+    <section id="cart">
+        <h2>News</h2>
+        {% for post in posts %}
+            <div class="news-article">
+                <a href="{% url 'detail' post.id %}">
+                    <img src="{{ post.image.url }}" alt="{{ post.title }}" class="news-image">
+                </a>
+                    <div class="news-content">
+                        <h3>{{ post.title }}</h3>
+                        <p class="category">{{ post.category }}</p>
+                        <p class="category">views {{ post.watch_count }}</p>
+                        <p class="category">{{ post.created_at }}</p>
+                        <div class="like-dislike">
+                            <div class="like-section">
+                                <img src="{% static 'images/like.png' %}" alt="Like" class="like-button" onclick="likePost({{ post.id }})">
+                                <span id="likes-{{ post.id }}">{{ post.likes }}</span>
+                            </div>
+                            <div class="dislike-section">
+                                <img src="{% static 'images/dislike.png' %}" alt="Dislike" class="dislike-button" onclick="dislikePost({{ post.id }})">
+                                <span id="dislikes-{{ post.id }}">{{ post.dislikes }}</span>
+                            </div>
+                        </div>
+                    </div>
+            </div>
+        {% endfor %}
+    </section>
+</main>
+
+<script>
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    const csrftoken = getCookie('csrftoken');
+
+    function likePost(postId) {
+        fetch(`/like/${postId}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrftoken,
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById(`likes-${postId}`).innerText = data.likes;
+            document.getElementById(`dislikes-${postId}`).innerText = data.dislikes;
+        });
+    }
+
+    function dislikePost(postId) {
+        fetch(`/dislike/${postId}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrftoken,
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById(`likes-${postId}`).innerText = data.likes;
+            document.getElementById(`dislikes-${postId}`).innerText = data.dislikes;
+        });
+    }
+</script>
+
+{% endblock%}

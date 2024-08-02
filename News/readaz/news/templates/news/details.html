@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<main>
+    <a href="{% url 'home' %}"> <button>Home</button></a>
+    <article class="news-detail">
+        <h1>{{ post.title }}</h1>
+        <img src="{{ post.image.url }}" alt="{{ post.title }}" class="news-detail-image" width="300" height="300" >
+        <div class="like-dislike">
+            <div class="like-section">
+                <p class="category">{{ post.created_at }}</p>
+                <img src="{% static 'images/like.png' %}" alt="Like" class="like-button" onclick="likePost({{ post.id }})">
+                <span id="likes-{{ post.id }}">{{ post.likes }}</span>
+            </div>
+            <div class="dislike-section">
+                <img src="{% static 'images/dislike.png' %}" alt="Dislike" class="dislike-button" onclick="dislikePost({{ post.id }})">
+                <span id="dislikes-{{ post.id }}">{{ post.dislikes }}</span>
+            </div>
+            
+        </div>
+        <p class="category">views {{ post.watch_count }}</p>
+        
+        <p class="category"> Category: {{ post.category }}</p>
+        <p class="description"> {{ post.description }}</p>
+        
+    </article>
+</main>
+
+
+<script>
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    const csrftoken = getCookie('csrftoken');
+
+    function likePost(postId) {
+        fetch(`/like/${postId}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrftoken,
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById(`likes-${postId}`).innerText = data.likes;
+            document.getElementById(`dislikes-${postId}`).innerText = data.dislikes;
+        })
+        .catch(error => console.error('Error:', error));
+    }
+
+    function dislikePost(postId) {
+        fetch(`/dislike/${postId}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrftoken,
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById(`likes-${postId}`).innerText = data.likes;
+            document.getElementById(`dislikes-${postId}`).innerText = data.dislikes;
+        })
+        .catch(error => console.error('Error:', error));
+    }
+</script>
+
+{% endblock %}
