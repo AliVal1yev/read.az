@@ -2,14 +2,18 @@ from django.shortcuts import render, redirect
 from. models import New, Category, UserInteraction
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+from django.core.paginator import Paginator
 
 
 def home_view(request):
-    posts = New.objects.order_by('created_at')
-    
+    posts_lists = New.objects.order_by('created_at')
+    paginator = Paginator(posts_lists, 5)
+    page_number = request.GET.get('page')
+    posts = paginator.get_page(page_number)
     context = {
         'posts':posts
     }
+    
     return render(request, 'news/home.html', context)
 
 def post_detail(requset, id):
