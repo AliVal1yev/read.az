@@ -1,20 +1,27 @@
-from django.shortcuts import render, redirect
-from. models import New, Category, UserInteraction
+from django.shortcuts import render, get_object_or_404
+from. models import New, Category
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.core.paginator import Paginator
 
 
 def home_view(request):
-    posts_lists = New.objects.order_by('created_at')
-    paginator = Paginator(posts_lists, 5)
-    page_number = request.GET.get('page')
-    posts = paginator.get_page(page_number)
+    posts = New.objects.order_by('-created_at')
+    catigories = Category.objects.all()
+    posts_list = []
+    for post in posts:
+        post.check_and_expire()
+        if post.available == True:
+            posts_list.append(post)
+        paginator = Paginator(posts_list, 5)
+        page_number = request.GET.get('page')
+        posts = paginator.get_page(page_number)
     context = {
-        'posts':posts
+        'posts':posts,
+        'catigories': catigories
     }
-    
     return render(request, 'news/home.html', context)
+
 
 def post_detail(requset, id):
     post = New.objects.get(id=id)
@@ -60,3 +67,14 @@ def dislike_post(request, post_id):
 
         post.save()
         return JsonResponse({'likes': post.likes, 'dislikes': post.dislikes})
+    
+    
+    
+def category(request, category_id):
+    category = get_object_or_404(Category, id=category_id)
+    posts = New.objects.filter(category=category)
+    context = {
+        'category': category,
+        'posts': posts
+    }
+    return render(request, 'news/category.html', context)

@@ -24,6 +24,11 @@ urlpatterns = [
         views.post_detail,
         name = 'detail'
     ),
+    path(
+        'category/<int:category_id>/',
+        views.category,
+        name = 'category'
+    ),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

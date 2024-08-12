@@ -2,14 +2,9 @@
 {%load static%}
 {% block content%}
 <main>
-    
     <section id="cart">
-        <h2>News</h2>
-        {% for category in catigories %}
-        <li>
-            <a href="{% url 'category' category.id %}">{{ category.title }}</a>
-        </li>
-        {% endfor %}
+        <h2>{{ category.title }}</h2>
+        <a href="{% url 'home' %}"> <button>Home</button></a>
         {% for post in posts %}
             <div class="news-article">
                 <a href="{% url 'detail' post.id %}">
